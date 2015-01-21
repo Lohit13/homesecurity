@@ -1,0 +1,208 @@
+#include <EEPROM.h>
+#include <Keypad.h>
+
+const byte ROWS = 4; //four rows
+const byte COLS = 3; //three columns
+;
+char keys[ROWS][COLS] =
+{{'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}};
+
+byte rowPins[ROWS] = {
+  8, 7, 6, 5}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {
+  4, 3, 2}; // connect to the column pinouts of the keypad
+
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+
+int redLed = 9;
+int greenLed = 10;
+int buzzer = 11;
+int motionPin = 12;
+int soundPin = 13;
+
+int GetNumber()
+{
+   char key = keypad.getKey();
+   return key;
+}
+
+int passcode()
+{
+
+    int ctr=0, key1, key2, key3, key4;
+
+    while(ctr!=1)
+      {
+        key1=GetNumber();
+
+        if(key1)
+        {
+         digitalWrite(buzzer,HIGH);
+         delay(100);
+         digitalWrite(buzzer,LOW);
+          ctr=1;
+        }
+      }
+
+    ctr=0;
+
+    while(ctr!=1)
+      {
+        key2=GetNumber();
+
+        if(key2)
+        {
+         digitalWrite(buzzer,HIGH);
+         delay(100);
+         digitalWrite(buzzer,LOW);
+          ctr=1;
+        }
+      }
+
+    ctr =0;
+
+    while(ctr!=1)
+      {
+        key3=GetNumber();
+
+        if(key3)
+        {
+         digitalWrite(buzzer,HIGH);
+         delay(100);
+         digitalWrite(buzzer,LOW);          
+          ctr=1;
+        }
+      }
+
+    ctr=0;
+
+    while(ctr!=1)
+      {
+        key4=GetNumber();
+
+        if(key4)
+        {
+         digitalWrite(buzzer,HIGH);
+         delay(100);
+         digitalWrite(buzzer,LOW);
+         delay(100);
+          ctr=1;
+        }
+      }  
+
+    if( key1 == '1' && key2 == '2' && key3 == '3' && key4 == '4' )
+      {  
+        return 1;
+      }
+    else
+      {
+        return 0;
+      }    
+
+}
+
+void setup()
+{
+  for (int i = 0; i < 512; i++)
+    EEPROM.write(i, 0);
+
+  pinMode(soundPin,INPUT); //SIG of the Parallax Sound Impact Sensor connected to Digital Pin 7
+  pinMode(motionPin,INPUT);
+  pinMode(buzzer, OUTPUT);
+  pinMode(greenLed,OUTPUT);
+  pinMode(redLed, OUTPUT);
+  digitalWrite (greenLed,LOW);
+
+}
+
+void loop()
+{
+boolean soundstate;
+boolean motionstate;
+
+int run=0;
+
+digitalWrite(buzzer,HIGH);
+                  delay(100);
+                  digitalWrite(buzzer,LOW);
+                  delay(100);  
+
+run = passcode();
+
+   digitalWrite(buzzer,HIGH);
+                  delay(100);
+                  digitalWrite(buzzer,LOW);
+                  delay(100);  
+
+switch(run)
+{
+
+      case 1 : {
+
+                        digitalWrite (greenLed,HIGH);
+
+                        digitalWrite(buzzer,HIGH);
+                        delay(100);
+                        digitalWrite(buzzer,LOW);
+                        delay(100);  
+
+                       while( motionstate!=1 || soundstate!=1 )
+                        {
+
+                          soundstate = digitalRead(soundPin);
+                          motionstate = digitalRead (motionPin);
+
+                                if (soundstate == 1 || motionstate == 1 ) {
+                                       digitalWrite(buzzer, HIGH);
+                                       digitalWrite(greenLed,LOW);
+                                      for(int i=0;;i++)
+                                       {
+                                         digitalWrite(redLed,HIGH);
+                                         delay(500);
+                                         digitalWrite(redLed,LOW);
+                                         delay(500);
+
+                                       }
+
+                               }
+
+                                else{
+
+                                  digitalWrite(buzzer,LOW);
+                                  digitalWrite(greenLed,HIGH);
+                                  digitalWrite(redLed,LOW);
+                                }
+
+                        }       
+
+      }
+
+      break;
+
+      default :
+            {
+                delay(100);
+                digitalWrite(buzzer,HIGH);
+                delay(75);
+                digitalWrite(buzzer,LOW);
+                delay(75);
+                digitalWrite(buzzer,HIGH);
+                delay(75);
+                digitalWrite(buzzer,LOW);
+                delay(75);
+                digitalWrite(buzzer,HIGH);
+                delay(75);
+                digitalWrite(buzzer,LOW);
+                delay(75);
+                digitalWrite(buzzer,HIGH);
+                delay(75);
+                digitalWrite(buzzer,LOW);
+                delay(75);
+            }
+      break;
+}
+
+}
